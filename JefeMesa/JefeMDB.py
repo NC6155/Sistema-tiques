@@ -45,5 +45,22 @@ class DatabaseJefe():
                     print(err)
         except Exception as err:      
             print(err)
+        return rutJefe
     
-    
+    def generarLista(self):
+        sql1="select * from Tiques"
+        try:
+            self.cursor.execute(sql1)
+            listaTique=self.cursor.fetchall()
+            if listaTique!=None:
+                for tique in range(len(listaTique)):
+                    sql2="select nombreEjec from Ejecutivo where rutEjec="+repr(tique[15])
+                    try:
+                        self.cursor.execute(sql2)
+                        if self.cursor.fetchone()!=None:
+                            nomEjec=self.cursor.fetchone()
+                    except Exception as err:
+                        print(err)
+                    print(tabulate([[tique[0],tique[5],tique[6],tique[9],tique[10],nomEjec]], tablefmt="github"))
+        except Exception as err:
+            print(err)            
