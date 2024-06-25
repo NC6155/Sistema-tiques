@@ -1,3 +1,6 @@
-from tabulate import tabulate
+import time
 
-print(tabulate([[12,2],[1,2]],[3,4],tablefmt="github"))
+fechaMo=time.localtime()
+fechaMo=time.strftime('%d/%m/%Y',fechaMo)
+
+print(fechaMo)
