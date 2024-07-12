@@ -111,4 +111,61 @@ class DatabaseJefe():
 
     def editarTique(self):
         idTique=int(input("Ingrese el id del tique: "))
-        
+        try:
+            sql1="select * from Tiques where idTique="+repr(idTique)
+            self.cursor.execute(sql1)
+            if self.cursor.fetchone()!=None:
+                while seguir=="S":
+                    system("cls")
+                    eleccion=input("Elija qué editará del tique:\n\
+                            Área (A)\n\
+                            Tipo de tique (T)\n\
+                            Criticidad (C)\n\
+                            : ").upper()
+                    if eleccion=="A":
+                        campo="areaDerivar"
+                        nuevo=input("Ingrese la nueva área: ")
+                    elif eleccion=="T":
+                        campo="tipoTique"
+                        nuevo=input("Ingrese el nuevo tipo del tique: ")
+                    elif eleccion=="C":
+                        campo="criticidad"
+                        nuevo=input("Ingrese la nueva criticidad: ")
+                    else: pass
+                    sql2="update Tiques set "+repr(campo)+"="+repr(nuevo)+"where idTique="+repr(idTique)
+                    try:
+                        self.cursor.execute(sql2)
+                        self.conexion.commit()
+                    except Exception as err:
+                        self.conexion.rollback()      
+                        print(err)
+                    seguir=input("¿Desea seguir? (S/N)\n\
+                                 : ")
+                    if seguir=="N":
+                        break
+                    elif seguir!="S" or seguir!="N":
+                        print("Error de escritura")
+        except Exception as err:      
+            print(err)
+
+    def restringirAcc(self):
+        rutEjec=input("Ingrese el rut del ejecutivo: ")
+        sql1="select * from Ejecutivo where rutEjec="+repr(rutEjec)
+        try:
+            self.cursor.execute(sql1)
+            if self.cursor.fetchone()!=None:
+                sql2="update Ejecutivo set ingreso=0 where rutEjec="+repr(rutEjec)
+                try:
+                    self.cursor.execute(sql2)
+                    self.conexion.commit()
+                    print("Acceso restringido correctamente")
+                except Exception as err:
+                     self.conexion.rollback()
+                     print(err)
+            else:
+                print("Rut incorrecto/Ejecutivo no existe")
+        except Exception as err:
+            self.conexion.rollback()
+            print(err)
+
+
