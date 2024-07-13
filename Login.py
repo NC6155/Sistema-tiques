@@ -1,6 +1,8 @@
 import mysql.connector
 from Ejecutivo import Ejec
+from Ejecutivo import EjecDb
 from JefeMesa import JefeMesa
+from JefeMesa import JefeMDB
 from hashlib import md5
 from pwinput import pwinput
 
@@ -19,12 +21,11 @@ class DatabaseMD5():
     def login(self):
         nombre=input("Ingrese nombre del usuario: ")
         password=pwinput("Ingrese password: ")
-        password=md5(password.encode("utf-8")).hexdigest()
         return nombre, password
     
-    def detectarUsuario(self):
+    def detectarUsuario(self, nombre):
         #Primero busca por los jefes de mesa
-        nombre,password=self.login() #Se deja la variable contraseña inerte a cambio de dejar el nombre en una variable
+        #nombre,password=self.login() #Se deja la variable contraseña inerte a cambio de dejar el nombre en una variable
         tipoUsuario=None
         sql1="select * from JefeMesa where nombreJefe="+repr(nombre)
         try:
@@ -50,7 +51,8 @@ class DatabaseMD5():
     
     def iniciarSesion(self):
         nombre,password=self.login()
-        tipoUsuario=self.detectarUsuario()
+        tipoUsuario=self.detectarUsuario(nombre)
+        print(nombre, password, tipoUsuario)
         #Detecta el tipo de usuario y loguea dependiendo de su tipo
         if tipoUsuario=="Jefe":
             sql1="select*from jefeMesa where nombreJefe="+repr(nombre)+"and contrasenaJefe="+repr(password)+";"
@@ -60,8 +62,10 @@ class DatabaseMD5():
             except Exception as err:
                 self.conexion.rollback()
                 print(err)
-            if result!=None and result[0]==nombre and result[1]==password:
-                JefeMesa.OpcionesJefe()
+            if result!=None and result[2]==nombre and result[1]==password:
+                JefeMesa.OpcionesJefe(nombre)
+            else:
+                print(result)
         elif tipoUsuario=="Ejec":
             sql1="select*from Ejecutivo where nombreEjec="+repr(nombre)+"and contrasenaEjec="+repr(password)+";"
             try:
@@ -74,7 +78,6 @@ class DatabaseMD5():
                 if result[4]=="no":
                     print("Acceso denegado") #Pregunta por el acceso del Ejecutivo en el sistema
                 else:
-                    Ejec.OpcionesEjec()
-                
+                    Ejec.OpcionesEjec()    
         else:
             print("Error al iniciar sesión")

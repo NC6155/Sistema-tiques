@@ -1,4 +1,4 @@
-from EjecDb import*
+from .EjecDb import *
 from os import system
 from Login import *
 db=DatabaseEjec()

@@ -1,4 +1,4 @@
-from JefeMDB import *
+from .JefeMDB import *
 from os import system
 #from Login import *
 db=DatabaseJefe()
