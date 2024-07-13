@@ -8,7 +8,7 @@ class DatabaseJefe():
                 user='root',
                 password='inacap2023',
                 host='localhost',
-                database='empresa',
+                database='mesaAyuda',
                 auth_plugin='mysql_native_password'
                 )
 
@@ -65,20 +65,46 @@ class DatabaseJefe():
                 sql2="select * from Tiques where fechaCr=str_to_date("+repr(filtrado)+",'%d/%m/%Y')"
             elif eleccion=="C":
                 filtrado=input("Ingrese la criticidad de el o los tique(s): ").capitalize()
+                while len(filtrado)>15:
+                    filtrado=input("Error, ingrese la criticidad de el o los tique(s): ").capitalize()
                 sql2="select * from Tiques where criticidad="+repr(filtrado)
             elif eleccion=="T":
-                filtrado=input("Ingrese el tipo de tique a buscar\n\
-                            Tipos de tique: felicitación, consulta, reclamo, problema\n\
-                            : ").capitalize()
+                while True:
+                    tipoTique=input("Elija el tipo de tique a filtrar\n\
+                                    Felicitación(F)\n\
+                                    Consulta(C)\n\
+                                    Reclamo(R)\n\
+                                    Problema(P)\n\
+                                    : ").lower()
+                    if tipoTique=="f":
+                        filtrado="Felicitacion"
+                        break
+                    elif tipoTique=="c":
+                        filtrado="Consulta"
+                        break
+                    elif tipoTique=="r":
+                        filtrado="Reclamo"
+                        break
+                    elif tipoTique=="p":
+                        filtrado="Problema"
+                        break
+                    else:
+                        pass
                 sql2="select * from Tiques where tipoTique="+repr(filtrado)
             elif eleccion=="A":
                 filtrado=input("Ingrese el área de el o los tique(s): ").capitalize()
+                while len(filtrado)>30:
+                    filtrado=input("Error, ingrese el área de el o los tique(s): ").capitalize()
                 sql2="select * from Tiques where areaDerivar="+repr(filtrado)
             elif eleccion=="AT":
                 filtrado=input("Ingrese el rut del ejecutivo que abrió el o los tique(s): ")
+                while len(filtrado)>12:
+                    filtrado=input("Error, ingrese el rut del ejecutivo que abrió el o los tique(s): ")
                 sql2="select * from Tiques where rutEjecCr="+repr(filtrado)
             elif eleccion=="CT":
                 filtrado=input("Ingrese el rut del ejecutivo que cerró el o los tique(s): ")
+                while len(filtrado)>12:
+                    filtrado=input("Error, ingrese el rut del ejecutivo que cerró el o los tique(s): ")
                 sql2="select * from Tiques where rutEjecMo="+repr(filtrado)
             elif eleccion=="S":
                 break
@@ -100,7 +126,7 @@ class DatabaseJefe():
                     while True:
                         manejoTique=input("¿Desea manejar un tique en específico? (S/N)").upper()
                         if manejoTique=="S":
-                            pass
+                            self.editarTique()
                         else:
                             break
                         
@@ -127,7 +153,27 @@ class DatabaseJefe():
                         nuevo=input("Ingrese la nueva área: ")
                     elif eleccion=="T":
                         campo="tipoTique"
-                        nuevo=input("Ingrese el nuevo tipo del tique: ")
+                        while True:
+                            tipoTique=input("Elija el nuevo tipo del tique\n\
+                                            Felicitación(F)\n\
+                                            Consulta(C)\n\
+                                            Reclamo(R)\n\
+                                            Problema(P)\n\
+                                            : ").lower()
+                            if tipoTique=="f":
+                                nuevo="Felicitacion"
+                                break
+                            elif tipoTique=="c":
+                                nuevo="Consulta"
+                                break
+                            elif tipoTique=="r":
+                                nuevo="Reclamo"
+                                break
+                            elif tipoTique=="p":
+                                nuevo="Problema"
+                                break
+                            else:
+                                pass
                     elif eleccion=="C":
                         campo="criticidad"
                         nuevo=input("Ingrese la nueva criticidad: ")

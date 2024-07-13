@@ -15,9 +15,9 @@ def OpcionesJefe(nombre):
         if eleccion=="C":
             db.crearEjec(nombreU)
         elif eleccion=="E":
-            db.tomaTique()
+            db.restringirAcc()
         elif eleccion=="G":
-            db.tomaTique()   
+            db.filtradoTique()   
         elif eleccion=="S":
             db.cerrarBD()
             break

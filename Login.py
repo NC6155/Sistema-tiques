@@ -1,6 +1,7 @@
 import mysql.connector
+from Ejecutivo import Ejec
+from JefeMesa import JefeMesa
 from hashlib import md5
-from tabulate import tabulate
 from pwinput import pwinput
 
 class DatabaseMD5():
@@ -9,7 +10,8 @@ class DatabaseMD5():
                 user='root',
                 password='inacap2023',
                 host='localhost',
-                database='mesaAyuda'
+                database='mesaAyuda',
+                auth_plugin='mysql_native_password'
                 )
 
             self.cursor=self.conexion.cursor()
@@ -59,8 +61,7 @@ class DatabaseMD5():
                 self.conexion.rollback()
                 print(err)
             if result!=None and result[0]==nombre and result[1]==password:
-                pass
-                #jefeMesa.opciones()
+                JefeMesa.OpcionesJefe()
         elif tipoUsuario=="Ejec":
             sql1="select*from Ejecutivo where nombreEjec="+repr(nombre)+"and contrasenaEjec="+repr(password)+";"
             try:
@@ -69,8 +70,11 @@ class DatabaseMD5():
             except Exception as err:
                 self.conexion.rollback()
                 print(err)
-            if result!=None and result[0]==nombre and result[1]==password:
-                pass
-                #ejecutivo.opciones() #Nombres temporales, cambiandose si se necesita
+            if result!=None and result[2]==nombre and result[3]==password:
+                if result[4]=="no":
+                    print("Acceso denegado") #Pregunta por el acceso del Ejecutivo en el sistema
+                else:
+                    Ejec.OpcionesEjec()
+                
         else:
             print("Error al iniciar sesión")
