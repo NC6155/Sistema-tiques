@@ -18,25 +18,28 @@ class DatabaseJefe():
         self.cursor.close()
         self.conexion.close()
     
-    def crearEjec(self, nombreJ):
+    def crearEjec(self):
         rutEj=input("Ingrese el rut del ejecutivo: ")
-        while len(rutEj)!=12:
+        while len(rutEj)>12:
             rutEj=input("Error, ingrese el rut del ejecutivo: ")
         try:
             sql1="select * from Ejecutivo where rutEjec="+repr(rutEj)
             self.cursor.execute(sql1)
             if self.cursor.fetchone()==None:
                 areaEj=input("Ingrese el área del ejecutivo: ")
+                while len(areaEj)>30:
+                    areaEj=input("Error, ingrese el área del ejecutivo: ")
                 nombreEj=input("Ingrese el nombre del ejecutivo: ")
+                while len(nombreEj)>20:
+                    nombreEj=input("Error, ingrese el nombre del ejecutivo: ")
                 contrEj=input("Ingrese la contraseña del ejecutivo: ")
-                sql2="select rutJefe from JefeMesa where nombreJefe="+repr(nombreJ)
-                try:
-                    self.cursor.execute(sql2)
-                    if self.cursor.fetchone()!=None:
-                        rutJefe=self.cursor.fetchone()
-                except Exception as err:
-                    print(err)
-                sql3="insert into Ejecutivo values("+repr(rutEj)+","+repr(areaEj)+","+repr(nombreEj)+","+repr(contrEj)+",A,"+repr(rutJefe)+");"
+                while len(contrEj)>25:
+                    contrEj=input("Error, ingrese la contraseña del ejecutivo: ")
+                rutJefe=input("Ingrese el rut del jefe que lo administrará: ")
+                while len(rutJefe)>12:
+                    rutJefe=input("Error, ingrese el rut del jefe que lo administrará: ")
+                sql3="insert into Ejecutivo values("+repr(rutEj)+","+repr(areaEj)+","+repr(nombreEj)+","+repr(contrEj)+",'si',"+repr(rutJefe)+");"
+                print(sql3)
                 try:
                     self.cursor.execute(sql3)
                     self.conexion.commit()
@@ -200,7 +203,7 @@ class DatabaseJefe():
         try:
             self.cursor.execute(sql1)
             if self.cursor.fetchone()!=None:
-                sql2="update Ejecutivo set ingreso=0 where rutEjec="+repr(rutEjec)
+                sql2="update Ejecutivo set ingreso=no where rutEjec="+repr(rutEjec)
                 try:
                     self.cursor.execute(sql2)
                     self.conexion.commit()

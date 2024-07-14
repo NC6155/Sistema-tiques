@@ -63,7 +63,7 @@ class DatabaseMD5():
                 self.conexion.rollback()
                 print(err)
             if result!=None and result[2]==nombre and result[1]==password:
-                JefeMesa.OpcionesJefe(nombre)
+                JefeMesa.OpcionesJefe()
             else:
                 print(result)
         elif tipoUsuario=="Ejec":
@@ -78,6 +78,6 @@ class DatabaseMD5():
                 if result[4]=="no":
                     print("Acceso denegado") #Pregunta por el acceso del Ejecutivo en el sistema
                 else:
-                    Ejec.OpcionesEjec()    
+                    Ejec.OpcionesEjec(nombre)    
         else:
             print("Error al iniciar sesión")

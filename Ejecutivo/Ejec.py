@@ -14,7 +14,7 @@ def OpcionesEjec(nombre):
         if eleccion=="C":
             db.crearTique(nombreU)
         elif eleccion=="T":
-            db.tomaTique()
+            db.tomaTique(nombreU)
         elif eleccion=="S":
             db.cerrarBD()
             break

@@ -20,7 +20,7 @@ class DatabaseEjec():
     
     def crearTique(self, nombre): #Envía el nombre del ejecutivo para luego buscar su rut
         idTique=int(input("Ingrese ID de tique: "))
-        while len(idTique)>3:
+        while len(str(idTique))>3:
             idTique=int(input("Error, ingrese ID de tique: "))
         sql1="select * from Tiques where idTique="+repr(idTique)
         try:
@@ -35,8 +35,8 @@ class DatabaseEjec():
                     rutCli=input("Error, ingrese RUT del cliente: ")
 
                 fono=int(input("Ingrese fono: "))
-                while len(fono)>9:
-                    fono=input("Error, ingrese fono: ")
+                while len(str(fono))>9:
+                    fono=int(input("Error, ingrese fono: "))
                 
                 corrElec=input("Ingrese el correo electronico: ")
                 while len(corrElec)>20:
@@ -72,34 +72,32 @@ class DatabaseEjec():
                 while len(detalleServ)>200:
                     detalleServ=input("Error, ingrese el detalle del servicio: ")
                 
+                detalleProb=input("Ingrese el detalle del problema: ")
+                while len(detalleServ)>200:
+                    detalleProb=input("Error, ingrese el detalle del problema: ")
+
                 areaDer=input("Ingrese el area a derivar: ")
                 while len(areaDer)>30:
                     areaDer=input("Error, ingrese el area a derivar: ")
                 
                 fechaCr=time.localtime()
-                fechaCr=time.strftime('%d/%m/%Y',fechaCr) #Se crean fechas de creación y modificación, luego se pasan al estándar de fechas
+                fechaCr=time.strftime('%Y/%m/%d',fechaCr) #Se crean fechas de creación y modificación, luego se pasan al estándar de fechas
                 fechaMo=time.localtime()
-                fechaMo=time.strftime('%d/%m/%Y',fechaMo) #La fecha de modificación será la misma de creación hasta que ocurra un cambio
+                fechaMo=time.strftime('%Y/%m/%d',fechaMo) #La fecha de modificación será la misma de creación hasta que ocurra un cambio
 
                 sql2="select rutEjec from Ejecutivo where nombreEjec="+repr(nombre) #Busca el rut del ejecutivo usando su nombre
                 try:
                     self.cursor.execute(sql2)
-                    if self.cursor.fetchone()!=None:
-                        rutEjec=self.cursor.fetchone()
+                    rutEjec=self.cursor.fetchone()
                 except Exception as err:
                     print(err)
-
-                sql3="select rutJefe from JefeMesa"
-                try:
-                    self.cursor.execute(sql3)
-                    if self.cursor.fetchone()!=None:
-                        rutJefe=self.cursor.fetchone()
-                except Exception as err:
-                    print(err)                          #Busca al primer jefe de mesa por su rut
+                rutJefe=input("Ingrese el rut del jefe de mesa encargado del tique: ")
+                while len(rutJefe)>12:
+                    rutJefe=input("Error, ingrese el rut del jefe de mesa encargado del tique: ")
 
                 sql4="insert into Tiques values("+repr(idTique)+","+repr(nomCli)+","+repr(rutCli)+","+repr(fono)+","+repr(corrElec)+","+repr(tipoTique)+","+repr(criticidad)+","\
-                    +repr(detalleServ)+","+repr(areaDer)+",A resolución, Sin observación"\
-                    +repr(fechaCr)+",'%d/%m/%Y'),"+repr(fechaMo)+",'%d/%m/%Y'),"+repr(rutEjec)+","+repr(rutEjec)+","+repr(rutJefe)+")" #Se crean dos columnas usando al rutEjec, una será modificada por el ejecutivo del área y la otra es una foránea llamando directamente al rutEjec
+                    +repr(detalleServ)+","+repr(detalleProb)+","+repr(areaDer)+",'A resolución', 'Sin observación',"\
+                    +repr(fechaCr)+","+repr(fechaMo)+","+repr(rutEjec[0])+","+repr(rutEjec[0])+","+repr(rutJefe)+");" #Se crean dos columnas usando al rutEjec, una será modificada por el ejecutivo del área y la otra es una foránea llamando directamente al rutEjec
                 try:
                     self.cursor.execute(sql4)
                     self.conexion.commit()
@@ -115,27 +113,23 @@ class DatabaseEjec():
 
         self.cursor.execute(sql1)
         prevTique=self.cursor.fetchone()
+        print(prevTique)
         if prevTique!=None:
-            print("{:10}{:20}{:12}{:12}{:20}{:12}"\
-                .format("Id Tique","Nombre Cl.","Rut Cl.","Tipo tique","Area der.","Rut Ejec."))
-
-            print("{:<10}{:20}{:12}{:12}{:20}{:12}".\
-                format(prevTique[0],prevTique[1],prevTique[2],prevTique[5],prevTique[9],prevTique[13]))
-        return rutEjec #Envía el rut del ejecutivo que creó el tique
+            print(tabulate([[prevTique[0],prevTique[1],prevTique[2],prevTique[5],prevTique[9],prevTique[14]]],tablefmt="github"))
     
 
-    def tomaTique(self):
+    def tomaTique(self,nombre):
         idTique=int(input("Ingrese ID de tique: "))
-        sql1="select * from Tiques where idTique="+repr(idTique)
-        rutEjecMo=self.crearTique() #Recibe el rut del ejecutivo
+        sql1="select * from Tiques where idTique="+repr(idTique)+";"
+
         try:
             self.cursor.execute(sql1)
             tique=self.cursor.fetchone()
             if tique!=None:
                 if tique[10]=="A resolución": #Verifica que el estado del tique sea el de "A resolución"
                     fechaMo=time.localtime()
-                    fechaMo=time.strftime('%d/%m/%Y',fechaMo)
-                    sql2="update Tiques set fechaMo=str_to_date("+repr(fechaMo)+",%d/%m/%Y) where idTique="+repr(idTique) #Actualiza la fecha de modificación
+                    fechaMo=time.strftime('%Y/%m/%d',fechaMo)
+                    sql2="update Tiques set fechaMo="+repr(fechaMo)+" where idTique="+repr(idTique) #Actualiza la fecha de modificación
                     try:
                         self.cursor.execute(sql2)
                         self.conexion.commit()
@@ -144,7 +138,7 @@ class DatabaseEjec():
                         print(err)
                     print(tabulate([[tique[0],tique[1],tique[2],tique[3],tique[5],tique[6],tique[7],tique[8],tique[13]]],tablefmt="github"))
                     estado=input("Escoja el estado del tique según su criterio (Resuelto, No aplicable): ").capitalize()
-                    while estado!="Resuelto" or estado!="No aplicable":
+                    while estado!="Resuelto" and estado!="No aplicable":
                         estado=input("Error, escoja el estado del tique según su criterio (Resuelto, No aplicable): ").capitalize()
                     sql3="update Tiques set estado="+repr(estado)+"where idTique="+repr(idTique)
                     try:
@@ -163,9 +157,15 @@ class DatabaseEjec():
                     except Exception as err:
                         self.conexion.rollback()
                         print(err)
-                    sql5="update Tiques set rutEjecMo="+repr(rutEjecMo)+"where idTique="+repr(idTique) #Cambia al ejecutivo que modificó el tique
+                    sql5="select rutEjec from Ejecutivo where nombreEjec="+repr(nombre) #Busca el rut del ejecutivo usando su nombre
                     try:
                         self.cursor.execute(sql5)
+                        rutEjecMo=self.cursor.fetchone()
+                    except Exception as err:
+                        print(err)
+                    sql6="update Tiques set rutEjecMo="+repr(rutEjecMo[0])+"where idTique="+repr(idTique) #Cambia al ejecutivo que modificó el tique
+                    try:
+                        self.cursor.execute(sql6)
                         self.conexion.commit()
                     except Exception as err:
                         self.conexion.rollback()
