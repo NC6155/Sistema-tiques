@@ -91,15 +91,33 @@ class DatabaseEjec():
                     rutEjec=self.cursor.fetchone()
                 except Exception as err:
                     print(err)
+                
                 rutJefe=input("Ingrese el rut del jefe de mesa encargado del tique: ")
                 while len(rutJefe)>12:
                     rutJefe=input("Error, ingrese el rut del jefe de mesa encargado del tique: ")
+                sql4="select * from JefeMesa where rutJefe="+repr(rutJefe)+";"
+                try:
+                    self.cursor.execute(sql4) #Revisa que el rut ingresado esté correcto, si no, ingresa el campo rutJefeAdmin en su lugar
+                    if self.cursor.fetchone()!=None:
+                        pass
+                    else:
+                        print("El rut del jefe es incorrecto, en su lugar se utilizará el rut del jefe que administre al usuario")
+                        sql5="select rutJefeAdmin from Ejecutivo where nombreEjec="+repr(nombre)+";"
+                        try:
+                            self.cursor.execute(sql5)
+                            rutJefe=self.cursor.fetchone()
+                            rutJefe=rutJefe[0] #Arregla el campo rutJefe de tupla a string al transformarlo en su primer (y único) campo, esto es para ahorrarse problemas a la hora de insertar el campo dentro de la tabla
+                        except Exception as err:
+                            print(err)
+                except Exception as err:
+                    self.conexion.rollback()
+                    print(err)   
 
-                sql4="insert into Tiques values("+repr(idTique)+","+repr(nomCli)+","+repr(rutCli)+","+repr(fono)+","+repr(corrElec)+","+repr(tipoTique)+","+repr(criticidad)+","\
+                sql6="insert into Tiques values("+repr(idTique)+","+repr(nomCli)+","+repr(rutCli)+","+repr(fono)+","+repr(corrElec)+","+repr(tipoTique)+","+repr(criticidad)+","\
                     +repr(detalleServ)+","+repr(detalleProb)+","+repr(areaDer)+",'A resolución', 'Sin observación',"\
                     +repr(fechaCr)+","+repr(fechaMo)+","+repr(rutEjec[0])+","+repr(rutEjec[0])+","+repr(rutJefe)+");" #Se crean dos columnas usando al rutEjec, una será modificada por el ejecutivo del área y la otra es una foránea llamando directamente al rutEjec
                 try:
-                    self.cursor.execute(sql4)
+                    self.cursor.execute(sql6)
                     self.conexion.commit()
                 except Exception as err:
                     self.conexion.rollback()
@@ -113,9 +131,9 @@ class DatabaseEjec():
 
         self.cursor.execute(sql1)
         prevTique=self.cursor.fetchone()
-        print(prevTique)
         if prevTique!=None:
-            print(tabulate([[prevTique[0],prevTique[1],prevTique[2],prevTique[5],prevTique[9],prevTique[14]]],tablefmt="github"))
+            print("Resumen de campos ingresados: \n")
+            print(tabulate([[idTique,rutCli,corrElec,areaDer,tipoTique,rutJefe]],tablefmt="github"))
     
 
     def tomaTique(self,nombre):
