@@ -1,4 +1,5 @@
 from os import system
+import time
 import mysql.connector
 from tabulate import tabulate
 
@@ -18,7 +19,7 @@ class DatabaseJefe():
         self.cursor.close()
         self.conexion.close()
     
-    def crearEjec(self):
+    def crearEjec(self,nombre):
         rutEj=input("Ingrese el rut del ejecutivo: ")
         while len(rutEj)>12:
             rutEj=input("Error, ingrese el rut del ejecutivo: ")
@@ -35,10 +36,13 @@ class DatabaseJefe():
                 contrEj=input("Ingrese la contraseña del ejecutivo: ")
                 while len(contrEj)>25:
                     contrEj=input("Error, ingrese la contraseña del ejecutivo: ")
-                rutJefe=input("Ingrese el rut del jefe que lo administrará: ")
-                while len(rutJefe)>12:
-                    rutJefe=input("Error, ingrese el rut del jefe que lo administrará: ")
-                sql3="insert into Ejecutivo values("+repr(rutEj)+","+repr(areaEj)+","+repr(nombreEj)+","+repr(contrEj)+",'si',"+repr(rutJefe)+");"
+                sql2="select rutJefe from JefeMesa where nombreJefe="+repr(nombre)
+                try:
+                    self.cursor.execute(sql2)
+                    rutJefe=self.cursor.fetchone()
+                except Exception as err:
+                    print(err)
+                sql3="insert into Ejecutivo values("+repr(rutEj)+","+repr(areaEj)+","+repr(nombreEj)+","+repr(contrEj)+",'si',"+repr(rutJefe[0])+");"
                 print(sql3)
                 try:
                     self.cursor.execute(sql3)
@@ -118,21 +122,20 @@ class DatabaseJefe():
                     self.cursor.execute(sql2)
                     listaFilt=self.cursor.fetchall()
                     for tiquesF in listaFilt:
-                        sql3="select nombreEjec from Ejecutivo where rutEjec="+repr(tiquesF[15])
+                        sql3="select nombreEjec from Ejecutivo where rutEjec="+repr(tiquesF[15])+";"
                         try:
                             self.cursor.execute(sql3)
-                            if self.cursor.fetchone()!=None:
-                                nomEjec=self.cursor.fetchone()
+                            nomEjec=self.cursor.fetchone()
                         except Exception as err:
                             print(err)
-                        print(tabulate([[tiquesF[0],tiquesF[5],tiquesF[6],tiquesF[9],tiquesF[10],nomEjec]], tablefmt="github"))
-                    while True:
-                        manejoTique=input("¿Desea manejar un tique en específico? (S/N)").upper()
-                        if manejoTique=="S":
-                            self.editarTique()
-                        else:
-                            break
-                        
+                        print(tabulate([[nomEjec[0],tiquesF[12],tiquesF[5],tiquesF[6],tiquesF[9],tiquesF[10]]], tablefmt="github")) #Filtra por: nomejec cr, fecha cr, tipotique, criticidad, areadest, estado
+                    manejoTique=input("¿Desea manejar un tique en específico? (S/N)\n\
+                                      : ").upper()
+                    if manejoTique=="S":
+                        self.editarTique()
+                        break
+                    else:
+                        break
                 else:
                     input("Volviendo al menú principal, presione Enter para continuar...")
             except Exception as err:
@@ -140,6 +143,7 @@ class DatabaseJefe():
 
     def editarTique(self):
         idTique=int(input("Ingrese el id del tique: "))
+        seguir="S"
         try:
             sql1="select * from Tiques where idTique="+repr(idTique)
             self.cursor.execute(sql1)
@@ -181,19 +185,22 @@ class DatabaseJefe():
                         campo="criticidad"
                         nuevo=input("Ingrese la nueva criticidad: ")
                     else: pass
-                    sql2="update Tiques set "+repr(campo)+"="+repr(nuevo)+"where idTique="+repr(idTique)
+                    sql2="update Tiques set "+campo+"="+repr(nuevo)+"where idTique="+repr(idTique)+";"
                     try:
                         self.cursor.execute(sql2)
                         self.conexion.commit()
                     except Exception as err:
                         self.conexion.rollback()      
                         print(err)
-                    seguir=input("¿Desea seguir? (S/N)\n\
-                                 : ")
-                    if seguir=="N":
-                        break
-                    elif seguir!="S" or seguir!="N":
-                        print("Error de escritura")
+                    while True:
+                        seguir=input("¿Desea seguir? (S/N)\n\
+                        : ").upper()
+                        if seguir=="N":
+                            break
+                        elif seguir=="S":
+                            break
+                        else:
+                            print("Valor equivocado")
         except Exception as err:      
             print(err)
 
@@ -202,15 +209,19 @@ class DatabaseJefe():
         sql1="select * from Ejecutivo where rutEjec="+repr(rutEjec)
         try:
             self.cursor.execute(sql1)
-            if self.cursor.fetchone()!=None:
-                sql2="update Ejecutivo set ingreso=no where rutEjec="+repr(rutEjec)
-                try:
-                    self.cursor.execute(sql2)
-                    self.conexion.commit()
-                    print("Acceso restringido correctamente")
-                except Exception as err:
-                     self.conexion.rollback()
-                     print(err)
+            ejecutivo=self.cursor.fetchone()
+            if ejecutivo!=None:
+                if ejecutivo[4]=="si":
+                    sql2="update Ejecutivo set ingreso='no' where rutEjec="+repr(rutEjec)
+                    try:
+                        self.cursor.execute(sql2)
+                        self.conexion.commit()
+                        print("Acceso restringido correctamente")
+                    except Exception as err:
+                        self.conexion.rollback()
+                        print(err)
+                else:
+                    print("Ejecutivo ya tuvo su acceso restringido")
             else:
                 print("Rut incorrecto/Ejecutivo no existe")
         except Exception as err:

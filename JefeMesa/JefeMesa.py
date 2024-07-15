@@ -3,7 +3,7 @@ from os import system
 #from Login import *
 db=DatabaseJefe()
 
-def OpcionesJefe():
+def OpcionesJefe(nombre):
     while True:
         eleccion=input("Escoja la operación que desea hacer:\n\
                        Crear ejecutivo (C)\n\
@@ -12,7 +12,7 @@ def OpcionesJefe():
                        Salir(S)\n\
                        : ").upper()
         if eleccion=="C":
-            db.crearEjec()
+            db.crearEjec(nombre)
         elif eleccion=="E":
             db.restringirAcc()
         elif eleccion=="G":

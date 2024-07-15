@@ -140,7 +140,7 @@ class DatabaseEjec():
                     estado=input("Escoja el estado del tique según su criterio (Resuelto, No aplicable): ").capitalize()
                     while estado!="Resuelto" and estado!="No aplicable":
                         estado=input("Error, escoja el estado del tique según su criterio (Resuelto, No aplicable): ").capitalize()
-                    sql3="update Tiques set estado="+repr(estado)+"where idTique="+repr(idTique)
+                    sql3="update Tiques set estado="+repr(estado)+" where idTique="+repr(idTique)
                     try:
                         self.cursor.execute(sql3)
                         self.conexion.commit()
@@ -150,7 +150,7 @@ class DatabaseEjec():
                     observ=input("Deje su observación acá: ")
                     while len(observ)>50:
                         observ=input("Error, deje su observación acá: ")
-                    sql4="update Tiques set observEjec="+repr(observ)+"where idTique="+repr(idTique)
+                    sql4="update Tiques set observEjec="+repr(observ)+" where idTique="+repr(idTique)
                     try:
                         self.cursor.execute(sql4)
                         self.conexion.commit()
@@ -163,7 +163,7 @@ class DatabaseEjec():
                         rutEjecMo=self.cursor.fetchone()
                     except Exception as err:
                         print(err)
-                    sql6="update Tiques set rutEjecMo="+repr(rutEjecMo[0])+"where idTique="+repr(idTique) #Cambia al ejecutivo que modificó el tique
+                    sql6="update Tiques set rutEjecMo="+repr(rutEjecMo[0])+" where idTique="+repr(idTique) #Cambia al ejecutivo que modificó el tique
                     try:
                         self.cursor.execute(sql6)
                         self.conexion.commit()

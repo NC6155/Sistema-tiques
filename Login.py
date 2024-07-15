@@ -52,7 +52,6 @@ class DatabaseMD5():
     def iniciarSesion(self):
         nombre,password=self.login()
         tipoUsuario=self.detectarUsuario(nombre)
-        print(nombre, password, tipoUsuario)
         #Detecta el tipo de usuario y loguea dependiendo de su tipo
         if tipoUsuario=="Jefe":
             sql1="select*from jefeMesa where nombreJefe="+repr(nombre)+"and contrasenaJefe="+repr(password)+";"
@@ -63,7 +62,7 @@ class DatabaseMD5():
                 self.conexion.rollback()
                 print(err)
             if result!=None and result[2]==nombre and result[1]==password:
-                JefeMesa.OpcionesJefe()
+                JefeMesa.OpcionesJefe(nombre)
             else:
                 print(result)
         elif tipoUsuario=="Ejec":
